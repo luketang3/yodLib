@@ -1,0 +1,54 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+  ext.kotlin_version = '1.2.10'
+  repositories {
+    google()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.0.1'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    jcenter()
+    maven { url "https://jitpack.io" }
+  }
+}
+
+task clean(type: Delete) {
+  delete rootProject.buildDir
+}
+
+ext {
+  minSdkVersion = 15
+  targetSdkVersion = 26
+  compileSdkVersion = 26
+
+
+  supportLibVersion = "26.1.0"
+
+  junitVersion = "4.12"
+  rxJavaVersion = "2.1.6"
+  rxAndroidVersion = "2.0.1"
+  timberVersion = "4.6.0"
+  spinKitVersion = "1.1.0"
+
+  deps = [kotlin             : "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version",
+          rxJava             : "io.reactivex.rxjava2:rxjava:$rxJavaVersion",
+          rxAndroid          : "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion",
+          supportV7          : "com.android.support:appcompat-v7:$supportLibVersion",
+          supportRecyclerView: "com.android.support:recyclerview-v7:$supportLibVersion",
+          timber             : "com.jakewharton.timber:timber:$timberVersion",
+          spinKit            : "com.github.ybq:Android-SpinKit:$spinKitVersion",
+          junit              : "junit:junit:$junitVersion"
+
+  ]
+}
