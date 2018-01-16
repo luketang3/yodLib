@@ -27,5 +27,5 @@ implementation 'com.github.luketang3.yodLib:common:${version_name}'
 - 有相关处理逻辑
 
 ```groovy
-implementation 'com.github.luketang3.yodLib:common:${version_name}'
+implementation 'com.github.luketang3.yodLib:common-logic:${version_name}'
 ```
