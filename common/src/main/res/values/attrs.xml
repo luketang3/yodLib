@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="SlideLayout">
+    <attr format="enum" name="slide_edge">
+      <enum name="none" value="-1"/>
+      <enum name="left" value="0"/>
+      <enum name="right" value="1"/>
+    </attr>
+
+    <attr format="enum" name="slide_shadow">
+      <enum name="none" value="-1"/>
+      <enum name="edge" value="0"/>
+      <enum name="full" value="1"/>
+    </attr>
+  </declare-styleable>
+
+</resources>
