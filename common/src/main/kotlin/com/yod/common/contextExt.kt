@@ -256,8 +256,8 @@ fun Context.isWifiConnect(): Boolean {
  * get imei
  */
 @SuppressLint("MissingPermission")
-fun Context.getImei() : String {
+fun Context.getImei(): String {
   val teleManager = getSystemService(Application.TELEPHONY_SERVICE) as TelephonyManager
-  return  teleManager.deviceId.takeIf { it.isNotEmpty() } ?: ""
+  return teleManager.deviceId?.takeIf { it.isNotEmpty() } ?: ""
 }
 
