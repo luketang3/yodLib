@@ -2,13 +2,20 @@ package com.yod.common
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Application
+import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.GET_SERVICES
+import android.content.pm.ServiceInfo
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkInfo
 import android.net.Uri
 import android.os.Build.VERSION
@@ -17,6 +24,7 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Images.Media
 import android.support.v4.app.Fragment
 import android.support.v4.content.FileProvider
+import android.support.v4.content.LocalBroadcastManager
 import android.telephony.TelephonyManager
 import android.view.View
 import android.view.WindowManager
@@ -41,7 +49,6 @@ fun Context.dp2R(dp: Float): Float {
   return displayMetrics.density * dp
 }
 
-
 fun Context.toSp(sp: Float): Float {
   val displayMetrics = resources.displayMetrics
   return displayMetrics.scaledDensity * sp
@@ -51,7 +58,7 @@ fun Context.toSp(sp: Float): Float {
  * 找不到资源 返回 0
  */
 fun Context.targetRes(name: String, defType: String): Int =
-    resources.getIdentifier(name, defType, packageName)
+  resources.getIdentifier(name, defType, packageName)
 
 /**
  *
@@ -259,5 +266,83 @@ fun Context.isWifiConnect(): Boolean {
 fun Context.getImei(): String {
   val teleManager = getSystemService(Application.TELEPHONY_SERVICE) as TelephonyManager
   return teleManager.deviceId?.takeIf { it.isNotEmpty() } ?: ""
+}
+
+/**
+ * before start activity
+ */
+inline fun Context.checkActivity(intent: Intent, callback: BoolCallback) {
+  val ok = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null
+  callback(ok)
+}
+
+/**
+ * 发送本地广播
+ * 防止敏感信息 泄漏
+ */
+fun Context.sendLocalBroadcast(intent: Intent) =
+  LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+
+/**
+ * register local receiver
+ */
+fun Context.registerLocalReceiver(receiver: BroadcastReceiver, filter: IntentFilter) =
+  LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter)
+
+/**
+ * unregister local receiver
+ */
+fun Context.unregisterLocalReceiver(receiver: BroadcastReceiver) =
+  LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+
+/**
+ * 判断是否是指定的 service process
+ * https://github.com/square/leakcanary.git
+ * com.squareup.leakcanary.internal.LeakCanaryInternals.java
+ */
+fun Context.isInServiceProcess(serviceClass: Class<*>): Boolean {
+  val packageManager = packageManager
+  val packageInfo: PackageInfo
+  try {
+    packageInfo = packageManager.getPackageInfo(packageName, GET_SERVICES);
+  } catch (e: Exception) {
+//      CanaryLog.d(e, "Could not get package info for %s", context.getPackageName());
+    return false
+  }
+  val mainProcess = packageInfo.applicationInfo.processName
+
+  val component = ComponentName(this, serviceClass)
+  val serviceInfo: ServiceInfo
+  try {
+    serviceInfo = packageManager.getServiceInfo(component, 0)
+  } catch (ignored: PackageManager.NameNotFoundException) {
+    // Service is disabled.
+    return false
+  }
+
+  if (serviceInfo.processName == mainProcess) {
+//      CanaryLog.d("Did not expect service %s to run in main process %s", serviceClass, mainProcess)
+    // Technically we are in the service process, but we're not in the service dedicated process.
+    return false
+  }
+
+  val myPid = android.os.Process.myPid()
+  val activityManager =
+    getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+  var myProcess: ActivityManager.RunningAppProcessInfo? = null
+  val runningProcesses = activityManager.runningAppProcesses
+  if (runningProcesses != null) {
+    for (process in runningProcesses) {
+      if (process.pid == myPid) {
+        myProcess = process
+        break
+      }
+    }
+  }
+  if (myProcess == null) {
+//      CanaryLog.d("Could not find running process for %d", myPid)
+    return false
+  }
+  return myProcess.processName.equals(serviceInfo.processName)
 }
 
