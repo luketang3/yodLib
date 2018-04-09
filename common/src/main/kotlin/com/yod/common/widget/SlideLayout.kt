@@ -229,7 +229,7 @@ class SlideLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : F
     }
   }
 
-  override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+  override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
     try {
       return _slideHelper.shouldInterceptTouchEvent(ev)
     } catch (ex: Exception) {
@@ -237,7 +237,7 @@ class SlideLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : F
     }
   }
 
-  override fun onTouchEvent(event: MotionEvent?): Boolean {
+  override fun onTouchEvent(event: MotionEvent): Boolean {
     try {
       _slideHelper.processTouchEvent(event)
       return true
@@ -253,7 +253,7 @@ class SlideLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : F
   }
 
   private inner class SlideCallBack() : ViewDragHelper.Callback() {
-    override fun tryCaptureView(child: View?, pointerId: Int): Boolean {
+    override fun tryCaptureView(child: View, pointerId: Int): Boolean {
       _ensureTarget()
       val edge = when (_edge) {
         SlideEdge.LEFT -> ViewDragHelper.EDGE_LEFT
@@ -266,7 +266,7 @@ class SlideLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : F
       return ret
     }
 
-    override fun clampViewPositionHorizontal(child: View?, left: Int, dx: Int): Int {
+    override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
       _ensureTarget()
       val width = _vTarget?.measuredWidth ?: 0
       return when (_edge) {
@@ -276,7 +276,7 @@ class SlideLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : F
       }
     }
 
-    override fun getViewHorizontalDragRange(child: View?): Int = measuredWidth
+    override fun getViewHorizontalDragRange(child: View): Int = measuredWidth
 
     override fun onViewDragStateChanged(state: Int) {
       _slideState = when (state) {
@@ -289,7 +289,7 @@ class SlideLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : F
       }
     }
 
-    override fun onViewPositionChanged(changedView: View?, left: Int, top: Int, dx: Int, dy: Int) {
+    override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
       _ensureTarget()
       _slideViewLeft = left
       _slideViewTop = top
@@ -311,7 +311,7 @@ class SlideLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : F
       _listener?.onSlide(_slidePercent, _slideState)
     }
 
-    override fun onViewReleased(releasedChild: View?, xvel: Float, yvel: Float) {
+    override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
       _ensureTarget()
       val top = _vTarget?.top ?: 0
       val left = _vTarget?.left ?: 0

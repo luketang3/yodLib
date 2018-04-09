@@ -61,9 +61,9 @@ abstract class BaseRecyclerAdapter<T>(val dataList: MutableList<T>,
     val TYPE_MESSAGE = 4 //无数据/异常
   }
 
-  override fun onViewAttachedToWindow(holder: Holder?) {
+  override fun onViewAttachedToWindow(holder: Holder) {
     super.onViewAttachedToWindow(holder)
-    val type = holder!!.itemViewType
+    val type = holder.itemViewType
     if (type == TYPE_HEAD || type == TYPE_SECTION || type == TYPE_BOTTOM || type == TYPE_MESSAGE) {
       setFullSpan(holder)
     }
@@ -82,16 +82,16 @@ abstract class BaseRecyclerAdapter<T>(val dataList: MutableList<T>,
     }
   }
 
-  override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): Holder {
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
     return when (viewType) {
       TYPE_HEAD -> Holder(headView!!)
       TYPE_BOTTOM -> Holder(bottomView!!)
       TYPE_MESSAGE -> Holder(msgView!!)
       TYPE_SECTION -> {
-        Holder(LayoutInflater.from(parent!!.context).inflate(sectionId, null))
+        Holder(LayoutInflater.from(parent.context).inflate(sectionId, null))
       }
       else -> {
-        val view = LayoutInflater.from(parent!!.context).inflate(itemId, null)
+        val view = LayoutInflater.from(parent.context).inflate(itemId, null)
         view.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT)
         Holder(view)
@@ -99,8 +99,8 @@ abstract class BaseRecyclerAdapter<T>(val dataList: MutableList<T>,
     }
   }
 
-  override fun onBindViewHolder(holder: Holder?, position: Int) {
-    when (holder!!.itemViewType) {
+  override fun onBindViewHolder(holder: Holder, position: Int) {
+    when (holder.itemViewType) {
       TYPE_HEAD -> {
       }
       TYPE_BOTTOM -> {
@@ -298,7 +298,7 @@ abstract class BaseRecyclerAdapter<T>(val dataList: MutableList<T>,
 abstract class BasePagerAdapter<T>(val dataList: MutableList<T>, val itemId: Int,
     val context: Context, val isRepeat: Boolean = false) : PagerAdapter() {
 
-  override fun isViewFromObject(view: View?, `object`: Any?): Boolean {
+  override fun isViewFromObject(view: View, `object`: Any): Boolean {
     return view == `object`
   }
 
@@ -306,12 +306,12 @@ abstract class BasePagerAdapter<T>(val dataList: MutableList<T>, val itemId: Int
     return if (isRepeat && dataList.size > 1) Int.MAX_VALUE else dataList.size
   }
 
-  override fun instantiateItem(container: ViewGroup?, position: Int): Any {
+  override fun instantiateItem(container: ViewGroup, position: Int): Any {
 
     val view = getView()
     val p = getRealPosition(position)
     bindView(view.tag as Holder, p, dataList[p])
-    container!!.addView(view)
+    container.addView(view)
     return view
   }
 
